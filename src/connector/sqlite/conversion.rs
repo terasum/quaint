@@ -132,9 +132,9 @@ impl TypeIdentifier for Column<'_> {
 
 impl<'a> GetRow for SqliteRow<'a> {
     fn get_result_row<'b>(&'b self) -> crate::Result<Vec<Value<'static>>> {
-        let mut row = Vec::with_capacity(self.columns().len());
+        let mut row = Vec::with_capacity(self.as_ref().column_count() as usize);
 
-        for (i, column) in self.columns().iter().enumerate() {
+        for (i, column) in self.as_ref().columns().iter().enumerate() {
             let pv = match self.get_ref_unwrap(i) {
                 ValueRef::Null => match column {
                     // NOTE: A value without decl_type would be Int32(None)
@@ -241,8 +241,8 @@ impl<'a> GetRow for SqliteRow<'a> {
 
 impl<'a> ToColumnNames for SqliteRows<'a> {
     fn to_column_names(&self) -> Vec<String> {
-        match self.column_names() {
-            Some(columns) => columns.into_iter().map(|c| c.into()).collect(),
+        match self.as_ref() {
+            Some(columns) => columns.column_names().into_iter().map(|c| c.into()).collect(),
             None => vec![],
         }
     }
